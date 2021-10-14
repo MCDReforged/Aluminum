@@ -1,0 +1,17 @@
+{
+    "id": "aluminum",
+    "version": "0.1.0",
+    "name": "Aluminum",
+    "description": {
+        "en_us": "A MCDReforged plugin manager.",
+        "zh_cn": "一个 MCDR 插件管理器。"
+    },
+    "dependencies": {
+        "mcdreforged": ">=2.2.0"
+    },
+    "resources": [
+        "lang"
+    ], 
+    "author": "Alex3236",
+    "link": "https://github.com/alex3236/joinMOTD_Plus"
+}
