@@ -1,22 +1,7 @@
-<p align="center">
-    <img src="Al.png" alt="MCDR logo" width="150">
-</p>
+<img align="left" src="Al.png" alt="MCDR logo" width="200"></img>
 
-<h1 align="center">Aluminum</h1>
+# Aluminum
 
-<p align="center">
-    一个 MCDReforged 插件管理器。
-</p>
-
-<!-- <p align="center">
-    <a href="https://mcdreforged.readthedocs.io/en/latest/">Document</a>
-    ·
-    <a href="https://github.com/MCDReforged/PluginCatalogue">Plugins</a>
-    ·
-    <a href="#faq">FAQ</a>
-    ·
-    <a href="#contact">Contact</a>
-</p> -->
-
-## WIP
-仍在努力开发中，预计十月下旬发布第一个版本w
+ 一个 MCDReforged 插件管理器。
+ 
+ [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
