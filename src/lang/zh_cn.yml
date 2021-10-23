@@ -1,5 +1,5 @@
 aluminum:
-  banner: |-
+  banner: |
     §e感谢使用 Aluminum 作为你的插件管理器. 
     §cAluminum 是一个用于学习相关知识的项目, 且仍处于测试阶段, 可能不稳定.
   cache:
