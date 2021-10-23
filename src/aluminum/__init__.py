@@ -101,7 +101,7 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
         if config.use_release_cdn:
             download_url = download_url.replace('https://github.com/', RELEASE_CDN)
 
-        download_file(target_asset['browser_download_url'], target_asset['name'])
+        download_file(download_url, target_asset['name'])
 
         global_server.load_plugin(os.path.join(PLUGIN_FOLDER, target_asset['name']))
 

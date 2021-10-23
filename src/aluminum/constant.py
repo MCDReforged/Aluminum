@@ -17,6 +17,7 @@ global_server = ServerInterface.get_instance().as_plugin_server_interface()
 config = global_server.load_config_simple(target_class=Configure)
 
 PLUGIN_ID = 'aluminum'
+PLUGIN_VERSION = '0.1.2'
 PLUGIN_FOLDER = global_server.get_mcdr_config()['plugin_directories'][0]
 PLUGIN_INDEX_PATH = 'plugins.json'
 PLUGIN_RELEASE_PATH = '{0}/release.json'
@@ -38,8 +39,7 @@ BANNER = f'''
 §e|     | | | |     | |   | | |     |
 §e|__|__|_|___|_|_|_|_|_|_|___|_|_|_|
 
-§eAluminum 0.1.0
+§eAluminum {PLUGIN_VERSION}
                                    
-§e感谢使用 Aluminum 作为你的插件管理器.
-§cAluminum 是一个用于学习相关知识的项目, 且仍处于测试阶段, 可能不稳定.
+{trans('aluminum.banner')}
 '''

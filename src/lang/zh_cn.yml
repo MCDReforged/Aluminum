@@ -1,4 +1,7 @@
 aluminum:
+  banner: |-
+    §e感谢使用 Aluminum 作为你的插件管理器. 
+    §cAluminum 是一个用于学习相关知识的项目, 且仍处于测试阶段, 可能不稳定.
   cache:
     refresh: §e正在更新插件库索引...
     success: §a插件库索引更新完成！
