@@ -11,7 +11,7 @@ from aluminum.exceptions import *
 from aluminum.utils import *
 
 cache: dict = {}
-need_update: List[Tuple[str, Version, Version]] = []
+need_update: List[str] = []
 # seesion_lock: bool = False
 
 
@@ -23,7 +23,7 @@ def install_from_string(plugin_string):
     install_plugin(plugin_id, version_requirement)
 
 
-def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement, str], is_dependence: bool = False, is_update: bool = False):
+def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement, str] = VersionRequirement('*'), is_dependence: bool = False, is_update: bool = False):
     """Install a mcdreforged plugin."""
 
     def plugin_meta_url(plugin_id):
@@ -35,7 +35,10 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
         releases = requests.get(plugin_meta_url(plugin_id)).json()['releases']
         target_release = None
         for i in releases:
-            if version_requirement.accept(i['parsed_version']) and i['assets']:  # Check if accepted and downloadable
+            if is_update:
+                target_release = i
+                break
+            elif version_requirement.accept(i['parsed_version']) and i['assets']:  # Check if accepted and downloadable
                 target_release = i
                 break
 
@@ -49,9 +52,9 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
         return target_asset
 
     try:
-        clear_line()
+        # clear_line()
 
-        if type(version_requirement) != VersionRequirement:  # Handle string
+        if type(version_requirement) != VersionRequirement and not is_update:  # Handle string
             version_requirement = VersionRequirement(version_requirement)
 
         if time.time() - cache['last_refresh'] >= config.cache_timeout:  # Refresh cache if timed out
@@ -61,7 +64,7 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
         if plugin_id not in plugins:  # If not avaliable in plugin calalogue
             raise PluginNotFoundError(plugin_id)
 
-        if plugin_id in global_server.get_plugin_list():  # If the required version of plugin is already exists
+        if not is_update and plugin_id in global_server.get_plugin_list():  # If the required version of plugin is already exists
             if version_requirement.accept(global_server.get_plugin_metadata(plugin_id).version):
                 if is_dependence:
                     logger.info(trans('aluminum.install.dep_installed', plugin_id))
@@ -124,7 +127,7 @@ def backup_old_plugin(plugin_id: str):
 def refresh_cache():
     global cache
     try:
-        clear_line()
+        # clear_line()
         logger.info(trans('aluminum.cache.refresh'))
         cache = requests.get(plugins_url).json()
         cache['last_refresh'] = time.time()
@@ -152,7 +155,7 @@ def check_updates(refresh: bool = False):
                 reply_text.append(f'{plg} ({current} -> {latest})')
         except KeyError:
             continue
-    clear_line()
+    # clear_line()
     if need_update:
         logger.info(trans('aluminum.update.need'))
         for i in reply_text:
@@ -164,6 +167,7 @@ def check_updates(refresh: bool = False):
 def update_all():
     for i in need_update:
         install_plugin(i, is_update=True)
+
 
 def get_available_plugins():
     return cache['plugins'].keys() - global_server.get_plugin_list()
