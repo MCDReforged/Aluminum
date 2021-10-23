@@ -1,0 +1,26 @@
+aluminum:
+  cache:
+    refresh: §e正在更新插件库索引...
+    success: §a插件库索引更新完成！
+    failed: §c插件库索引更新失败！
+  update:
+    updating: '§e正在更新 {0}'
+    already: 插件 {0} 已为最新！
+    need: '§b以下插件需要更新:'
+    none: '§a所有插件都为最新！'
+  install:
+    installing: §e正在安装 {0}
+    install_dep: §e正在安装前置插件 {0}
+    install_pip: §e正在安装前置模块 {0}
+    pip_installed: §a前置模块 {0} 已存在
+    dep_installed: §a前置插件 {0} 已存在
+    lock: §cAluminum 正忙，请等待当前任务执行完毕！
+    no_release: §c找不到 {0} 的任何可下载发行版！
+    failed: §c安装失败！
+    backup: §e正在卸载旧插件 ({0})
+    downloading: §e正在下载 {0}
+    already_exists: '{0} 已存在'
+    not_found: 插件库中不存在 {0}
+    dep_error: 安装前置插件 {0} 时出现错误：{1}
+    pip_error: 安装前置模块 {0} 时出现错误：{1}
+  network_error: '获取 {0} 时网络连接异常'
