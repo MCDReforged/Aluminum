@@ -1,9 +1,16 @@
-<img align="left" src="Al.png" alt="MCDR logo" width="200"></img>
+<p align="center">
+    <img src="Al.png" alt="MCDR logo" width="200">
+</p>
 
-# Aluminum
+<h1 align="center">Aluminum</h1>
 
- 一个 MCDReforged 插件管理器。
- [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)、
+<p align="center">
+    另一个 MCDR 插件管理器
+</p>
+
+<p align="center">
+    <a href="https://github.com/MCDReforged/Aluminum/releases"><strong>立即尝试 »</strong></a>
+</p>
 
 ## :warning: 注意
 Aluminum 是一个**纯控制台**插件，一切指令都不能被玩家执行。
