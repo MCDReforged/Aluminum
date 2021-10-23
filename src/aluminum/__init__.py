@@ -35,10 +35,7 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
         releases = requests.get(plugin_meta_url(plugin_id)).json()['releases']
         target_release = None
         for i in releases:
-            if is_update:
-                target_release = i
-                break
-            elif version_requirement.accept(i['parsed_version']) and i['assets']:  # Check if accepted and downloadable
+            if version_requirement.accept(i['parsed_version']) and i['assets']:  # Check if accepted and downloadable
                 target_release = i
                 break
 
@@ -54,7 +51,7 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
     try:
         # clear_line()
 
-        if type(version_requirement) != VersionRequirement and not is_update:  # Handle string
+        if type(version_requirement) != VersionRequirement:  # Handle string
             version_requirement = VersionRequirement(version_requirement)
 
         if time.time() - cache['last_refresh'] >= config.cache_timeout:  # Refresh cache if timed out
@@ -64,7 +61,7 @@ def install_plugin(plugin_id: str, version_requirement: Union[VersionRequirement
         if plugin_id not in plugins:  # If not avaliable in plugin calalogue
             raise PluginNotFoundError(plugin_id)
 
-        if not is_update and plugin_id in global_server.get_plugin_list():  # If the required version of plugin is already exists
+        if plugin_id in global_server.get_plugin_list():  # If the required version of plugin is already exists
             if version_requirement.accept(global_server.get_plugin_metadata(plugin_id).version):
                 if is_dependence:
                     logger.info(trans('aluminum.install.dep_installed', plugin_id))
@@ -142,7 +139,7 @@ def refresh_cache():
 def check_updates(refresh: bool = False):
     global need_update
     all_meta = global_server.get_all_metadata()
-    need_update = []
+    need_update = {}
     reply_text = []
     if refresh:
         refresh_cache()
@@ -151,7 +148,7 @@ def check_updates(refresh: bool = False):
             current = all_meta[plg].version
             latest = Version(cache['plugins'][plg]['version'])
             if latest > current:
-                need_update.append(plg)
+                need_update[plg] = VersionRequirement(str(latest))
                 reply_text.append(f'{plg} ({current} -> {latest})')
         except KeyError:
             continue
@@ -166,7 +163,7 @@ def check_updates(refresh: bool = False):
 
 def update_all():
     for i in need_update:
-        install_plugin(i, is_update=True)
+        install_plugin(i, need_update[i], is_update=True)
 
 
 def get_available_plugins():
@@ -185,7 +182,9 @@ def register_command(server: PluginServerInterface):
         then(get_literal('update').runs(lambda src: check_updates(refresh=True))
         ).
         then(get_literal('upgrade').runs(lambda src: update_all()).then(
-            Text('plugin').suggests(lambda: need_update).runs(lambda src, ctx: install_plugin(ctx['plugin'], is_update=True))
+            Text('plugin').suggests(lambda: need_update).
+                requires(lambda src, ctx: ctx['plugin'] in need_update).
+                runs(lambda src, ctx: install_plugin(ctx['plugin'], need_update[ctx['plugin']], is_update=True))
         )).
         then(get_literal('browse').runs(lambda src: webbrowser.open(PLUGIN_CATALOGUE)
         ))

@@ -17,7 +17,7 @@ global_server = ServerInterface.get_instance().as_plugin_server_interface()
 config = global_server.load_config_simple(target_class=Configure)
 
 PLUGIN_ID = 'aluminum'
-PLUGIN_VERSION = '0.1.2'
+PLUGIN_VERSION = '0.1.3'
 PLUGIN_FOLDER = global_server.get_mcdr_config()['plugin_directories'][0]
 PLUGIN_INDEX_PATH = 'plugins.json'
 PLUGIN_RELEASE_PATH = '{0}/release.json'
