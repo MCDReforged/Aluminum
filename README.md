@@ -1,16 +1,10 @@
-<p align="center">
-    <img src="Al.png" alt="MCDR logo" width="200">
-</p>
+## :warning: 归档 / Archive
 
-<h1 align="center">Aluminum</h1>
+我是傻逼。作为替代，请使用 [MPM](https://github.com/Ivan-1F/MCDReforgedPluginManager)。
 
-<p align="center">
-    另一个 MCDR 插件管理器
-</p>
+Alex3236 sucks. Use [MPM](https://github.com/Ivan-1F/MCDReforgedPluginManager) instead.
 
-<p align="center">
-    <a href="https://github.com/MCDReforged/Aluminum/releases"><strong>立即尝试 »</strong></a>
-</p>
+<details>
 
 ## :warning: 注意
 Aluminum 是一个**纯控制台**插件，一切指令都不能被玩家执行。
@@ -38,4 +32,5 @@ Aluminum 是一个**纯控制台**插件，一切指令都不能被玩家执行�
   <summary>为什么是纯控制台插件？</summary>
   
   > 大部分 MCDR 插件需要在安装后进行修改配置文件等操作。更新插件后，也需要人工检查插件是否正常。我认为在游戏中执行命令非常浪费时间。当然，如果有人需要，后期会考虑修改。
+</details>
 </details>
