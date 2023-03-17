@@ -1,45 +1,65 @@
-import os
-from typing import List
-from urllib.parse import urljoin
+import sys
 
+import ruamel.yaml as yaml
 from mcdreforged.api.all import Serializable, ServerInterface
 
 
-class Configure(Serializable):
-    command_prefix: List[str] = ['al', 'aluminum']
-    cache_timeout: int = 1800
-    check_update: int = 1800
-    use_meta_cdn: bool = True
+class CatalogueConfig(Serializable):
+    source: str = 'https://github.com/'
+    update_interval: int = 30
+    check_upgrade: bool = True
+    plugin_folder: str = 'plugins'
+
+
+class Configuration(Serializable):
+    permission: int = 3
+    catalogue: CatalogueConfig = CatalogueConfig()
+    page_size: int = 6
     use_release_cdn: bool = True
 
 
+class NegativeInfinity:
+    def __lt__(self, _): return True
+    def __le__(self, _): return True
+    def __eq__(self, other): return isinstance(other, self)
+    def __float__(self, _): return float('-inf')
+    def __str__(_): return '-inf'
+
+    def __gt__(self, _): return False
+    def __ge__(self, _): return False
+    def __ne__(self, other): return not isinstance(other, self)
+    def __pos__(self): return self
+
+
+N_INF = NegativeInfinity()
+
 global_server = ServerInterface.get_instance().as_plugin_server_interface()
-config = global_server.load_config_simple(target_class=Configure)
+
+PYTHON = sys.executable
 
 PLUGIN_ID = 'aluminum'
 PLUGIN_VERSION = '0.1.3'
+PLUGIN_DESCRIPTION = 'Anothoer Plugin Manager'
 PLUGIN_FOLDER = global_server.get_mcdr_config()['plugin_directories'][0]
-PLUGIN_INDEX_PATH = 'plugins.json'
-PLUGIN_RELEASE_PATH = '{0}/release.json'
-META_CDN = 'https://cdn.jsdelivr.net/gh/MCDReforged/PluginCatalogue@meta/' if config.use_meta_cdn else 'https://raw.githubusercontent.com/MCDReforged/PluginCatalogue/meta/'
-RELEASE_CDN = 'https://download.fastgit.org/'
-PLUGIN_CATALOGUE = 'https://github.com/MCDReforged/PluginCatalogue/tree/catalogue'
+PLUGIN_CATALOGUE = 'MCDReforged/PluginCatalogue/archive/refs/heads/meta.zip'
+PREFIX = ['!!al', '!!aluminum']
 
-logger = global_server.logger
-trans = global_server.tr
-plugins_url = urljoin(META_CDN, 'plugins.json')
-backup_dir = os.path.join(global_server.get_data_folder(), 'backup')
+INDEXES = ['api', 'information', 'tool', 'management', 'outdated', 'installed', 'all']
+SORTS = ['labels', 'authors', 'name']
+PAGE_SIZE = 6
 
-# A regex to get plugin name and version requirement
-SEMVER_PATTERN = '(\w+)([><=~^]?=?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z\d][-a-zA-Z.\d]*)?(\+[a-zA-Z\d][-a-zA-Z.\d]*)?)?'
+DEPENDENCY_BLACKLIST = ['python', 'mcdreforged']
 
-BANNER = f'''                            
-§e _____ _           _               
-§e|  _  | |_ _ _____|_|___ _ _ _____ 
-§e|     | | | |     | |   | | |     |
-§e|__|__|_|___|_|_|_|_|_|_|___|_|_|_|
+RELOADED_BANNER = f'§3Aluminum {PLUGIN_VERSION} initialized!'
+LOADED_BANNER = f'''                            
+§3 _____ _           _               
+§3|  _  | |_ _ _____|_|___ _ _ _____ 
+§3|     | | | |     | |   | | |     |
+§3|__|__|_|___|_|_|_|_|_|_|___|_|_|_|
 
-§eAluminum {PLUGIN_VERSION}
-                                   
-{trans('aluminum.banner')}
+{RELOADED_BANNER}
 '''
+
+with global_server.open_bundled_file('trans\zh_cn.yml') as f:
+    TRANSLATION = yaml.safe_load(f)
+

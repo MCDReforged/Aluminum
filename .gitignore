@@ -5,3 +5,9 @@ config
 dist
 build*
 *.zip
+/logs
+/config
+/plugins
+/config.yml
+/server
+/permission.yml

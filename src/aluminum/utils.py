@@ -1,36 +1,99 @@
-import re
-import shutil
-import subprocess
-from threading import Thread
+import os
+import sched
+import threading
 import time
-import pkg_resources
-from sys import executable as python
-from typing import Callable, List, Tuple
+import zipfile
+from typing import Any, Callable, List, Optional, Tuple
 
 import requests
-from mcdreforged.api.all import *
-from mcdreforged.plugin import plugin_factory
-from mcdreforged.utils import file_util
+from mcdreforged.api.decorator import new_thread
+from mcdreforged.api.rtext import RColor, RText, RTextBase
+from mcdreforged.api.types import CommandSource
+from mcdreforged.utils.serializer import Serializable
 
-from aluminum.constant import *
-from aluminum.exceptions import NetworkError, RequirementInstallError
+from aluminum.constant import PLUGIN_ID, global_server, TRANSLATION
+from aluminum.exceptions import CorruptedOnlineMetaError, NetworkError
 
-class AluminumClock(Thread):
-    def __init__(self, interval: int, event: Callable) -> None:
-        super().__init__()
-        self.setDaemon(True)
-        self.setName(self.__class__.__name__)
+
+class ValueDict(dict):
+    def __iter__(self):
+        return iter(self.values())
+
+
+class PrettySerializable(Serializable):
+    def __repr__(self) -> str:
+        return represent(self)
+
+
+import threading
+
+class TaskScheduler:
+    """
+    A class that encapsulates a scheduler and allows you to add one-time and interval tasks,
+    cancel tasks, and stop the scheduler.
+    """
+
+    def __init__(self, interval: int, target: callable, thread_name="TaskScheduler", arguments: tuple = ()):
+        """
+        Initialize the scheduler with a specified thread name.
+        """
+        self.thread_name = thread_name
+        self.target = target
         self.interval = interval
-        self.event = event
+        self.arguments = arguments
+        self.tasks = {}
+        self.lock = threading.Lock()
     
-    def run(self):
-        while True:
-            time.sleep(self.interval)
-            self.event()
+    def start(self):
+        self.target(*self.arguments)
+        self.timer = threading.Timer(self.interval, self.start)
+        self.timer.setName(self.thread_name)
+        self.timer.start()
+    
+    def stop(self):
+        self.timer.cancel()
 
 
+def check_lock(func):
+    """
+    Decorator to wrap a function to ensure that the function is executed under the session lock.
+    """
+    def wrapper(s, source, *args, **kwargs):
+        if s.lock.locked():
+            print_msg(source, trans('§cSeesion in use.'))
+            return None
+        with s.lock:
+            return func(s, source, *args, **kwargs)
+    return wrapper
 
-def download_file(file_url: str, name: str):
+
+def console_print(msg):
+    for line in RTextBase.from_any(msg).to_colored_text().splitlines():
+        global_server.logger.info(line)
+
+
+def print_msg(src: Optional[CommandSource], msg, color: RColor = None, console=True):
+    if src:
+        if color:
+            msg = RText(msg, color)
+        if src.is_player:
+            src.reply(msg)
+        if console:
+            console_print(msg)
+
+
+def trans(msg, *args):
+    if global_server.get_mcdr_language() == 'zh_cn':
+        try:
+            msg = TRANSLATION[msg]
+        except:
+            msg = f'[未译: {msg}]'
+    if args:
+        msg = msg.format(*args)
+    return msg
+
+
+def download_file(file_url: str, name: str, path: str):
     """Download a file from the Internet.
 
     Args:
@@ -39,66 +102,49 @@ def download_file(file_url: str, name: str):
     """
 
     try:
-        logger.info(trans('aluminum.install.downloading', name))
-        path = os.path.join(PLUGIN_FOLDER, name)
+        path = os.path.join(path, name)
         r = requests.get(file_url, stream=True)
         with open(path, "wb") as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
     except requests.RequestException as e:
-        raise NetworkError(name, e)
+        raise NetworkError(e)
 
 
-def get_unloaded_plugins() -> List[str]:
-    """Return a list of unloaded (not disabled) plugins."""
-    def get_files_in_plugin_directories(filter: Callable[[str], bool]) -> List[str]:
-        result = []
-        for plugin_directory in global_server.get_mcdr_config()['plugin_directories']:
-            result.extend(file_util.list_all(plugin_directory, filter))
-        return result
-
-    mcdr_server = global_server._mcdr_server()
-    # type: List[str]
-    return get_files_in_plugin_directories(lambda fp: plugin_factory.maybe_plugin(fp) and not mcdr_server.plugin_manager.contains_plugin_file(fp))
-
-
-def pip_install(module: str):
+def unzip(file, path):
     try:
-        try:
-            pkg_resources.require(module)
-        except pkg_resources.DistributionNotFound:
-            logger.info(trans('aluminum.install.install_pip', module))
-            subprocess.check_call([python, '-m', 'pip', '--disable-pip-version-check', 'install', module, '-q'])
-        else:
-            logger.info(trans('aluminum.install.pip_installed', module))
-    except subprocess.CalledProcessError as e:
-        raise RequirementInstallError(module, e)
+        with zipfile.ZipFile(file) as zip:
+            if zip.testzip():
+                raise CorruptedOnlineMetaError(f'File {file} is broken')
+            zip.extractall(path)
+    except Exception as e:
+        raise CorruptedOnlineMetaError(e)
 
 
+def touch(path):
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
 
-@new_thread(PLUGIN_ID)
-def with_new_thread(func: Callable, *args, **kwargs):
-    """Run function in a new thread.
 
-    Args:
-        func (Callable): The function to run.
+def represent(obj: Any) -> str:
     """
-    func(*args, **kwargs)
-
-
-def split_plugin_name(text: str) -> Tuple[str, VersionRequirement]:
-    """Split plugin name with version requirement.
-
-    Examples:
-        mcdreforged>=0.1.0 -> ('mcdreforged', '>=0.1.0')
+    aka repr
     """
-    match = re.match(SEMVER_PATTERN, text).groups()
-    plugin_id = match[0]
-    version = match[1] if match[1] else '*'
-    return (plugin_id, version)
+    return '{}[{}]'.format(type(obj).__name__, ','.join([
+        '{}={}'.format(k, repr(v)) for k, v in vars(obj).items() if not k.startswith('_')
+    ]))
 
 
-def clear_line():
-    """Print a blank line as split line (?)"""
-    print('\n')
+def tn(name) -> str:
+    """Generate a thread name.
+    """
+    return f'{PLUGIN_ID}-{name}'
+
+def is_integer(text):
+    try:
+        int(text)
+        return True
+    except:
+        return False
