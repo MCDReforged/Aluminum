@@ -4,18 +4,13 @@ import ruamel.yaml as yaml
 from mcdreforged.api.all import Serializable, ServerInterface
 
 
-class CatalogueConfig(Serializable):
+class Configuration(Serializable):
+    permission: int = 3
     source: str = 'https://github.com/'
     update_interval: int = 30
     check_upgrade: bool = True
     plugin_folder: str = 'plugins'
-
-
-class Configuration(Serializable):
-    permission: int = 3
-    catalogue: CatalogueConfig = CatalogueConfig()
     page_size: int = 6
-    use_release_cdn: bool = True
 
 
 class NegativeInfinity:

@@ -176,7 +176,7 @@ class PluginCatalogue:
         """
         src.reply(utils.trans('Updating catalogue...'))
         try:
-            utils.download_file(self.config.catalogue.source, 'meta.zip', self.cache_folder)
+            utils.download_file(self.config.source, 'meta.zip', self.cache_folder)
             zip = os.path.join(self.cache_folder, 'meta.zip')
             utils.unzip(zip, self.cache_folder)  # !
         except Exception as e:
@@ -252,13 +252,13 @@ class PluginManager:
     _plugins: ValueDict[Metadata]
 
     def __init__(self, config: Configuration, lock: Lock) -> None:
-        if config.catalogue.plugin_folder not in global_server.get_mcdr_config()['plugin_directories']:
-            raise PluginFolderError(utils.trans('{} is not a MCDR plugin dictionary', config.catalogue.plugin_folder))
+        if config.plugin_folder not in global_server.get_mcdr_config()['plugin_directories']:
+            raise PluginFolderError(utils.trans('{} is not a MCDR plugin dictionary', config.plugin_folder))
         self.config = config
         self._plugins = ValueDict(global_server.get_all_metadata())
         self.catalogue = PluginCatalogue(global_server.get_data_folder(), config, lock)
         self.lock = lock
-        self.scheduler = utils.TaskScheduler(config.catalogue.update_interval, self.check_update,
+        self.scheduler = utils.TaskScheduler(config.update_interval, self.check_update,
                                              utils.tn('AutoUpdate'),
                                              arguments=(global_server.get_plugin_command_source(), True,))
         self.scheduler.start()
@@ -296,10 +296,10 @@ class PluginManager:
     @new_thread(utils.tn('UpdateCheck'))
     def check_update(self, src: CommandSource, is_autoupdate: bool = False, check_upgrade: bool = None):
         if check_upgrade is None:
-            check_upgrade = self.config.catalogue.check_upgrade
+            check_upgrade = self.config.check_upgrade
         if is_autoupdate:
             utils.print_msg(src, utils.trans('Automatic catalogue update started'))
-        if time.time() - self.catalogue.last_check >= self.config.catalogue.update_interval:
+        if time.time() - self.catalogue.last_check >= self.config.update_interval:
             #! TODO: refactor to PluginCatalogue, take class Session out alone
             self.catalogue._update(src)
         if check_upgrade:
@@ -363,6 +363,7 @@ class PluginManager:
                 pass
             asset = release.assets[0]
             utils.download_file(asset.browser_download_url, asset.name, plugin_folder)
+            #! TODO: support ghproxy, fastgit, etc.
 
             if is_upgrade:
                 self._disable(dependency.id)

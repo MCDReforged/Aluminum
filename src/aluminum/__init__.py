@@ -171,7 +171,7 @@ def on_load(server, prev):
     utils.print_msg(global_server.get_plugin_command_source(),
                     constants.LOADED_BANNER if not prev else constants.RELOADED_BANNER)
     config = global_server.load_config_simple(target_class=constants.Configuration)
-    config.catalogue.source = urljoin(config.catalogue.source, constants.PLUGIN_CATALOGUE)
+    config.source = urljoin(config.source, constants.PLUGIN_CATALOGUE)
     manager = PluginManager(config, session_lock)
     catalogue = manager.catalogue
     register_commands()

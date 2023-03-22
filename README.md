@@ -17,29 +17,59 @@
 - Aluminum is still in alpha test. Highly unstable and unreadable code included. Not ready for production environment.
 
 ## Commands
-Use `!!al` for help
+| Command | Short form | Function |
+| - | - | - |
+| !!al update | - | Update catalogue cache |
+| !!al upgrade | - | Upgrade all outdated plugins |
+| !!al browse \<index\> [page] | !!al b \<index\> [page] | Browse catalogue |
+| !!al browse \<index\> \<sort_by\> [page] | !!al b \<index\> \<sort_by\> [page] | Browse catalogue |
+| !!al search \<keyword\> | !!al s \<keyword\> | Search catalogue |
+| !!al info \<keyword\> | - | Show plugin infomation |
+| !!al install \<plugin_id\> | !!al i \<plugin_id\> | Install a plugin |
+| !!al disable \<plugin_id\> | !!al d \<plugin_id\> | Disable a plugin |
+| !!al reload \<plugin_id\> | !!al r \<plugin_id\> | Reload a plugin |
+| !!al load \<file_path\> | !!al l \<file_path\> | Load a plugin from file |
+| !!al enable \<file_path\> | !!al e \<file_path\> | Enable a plugin |
+
+| Parameter | Definition |
+| - | - |
+| index | One of `api`, `information`, `tool`, `management`, `outdated`, `installed`, `all` |
+| sort_by | `labels`, `authors`, `name` |
+| page | Optional, a `Integer` |
+| keyword | A `QuotableText` |
+| plugin_id | A `Text` |
+| file_path | A `QuotableText` |
 
 ## Configuration
-```python
-class CatalogueConfig(Serializable):
-    source: str = 'https://github.com/' # You may use ghproxy/fastgit to get faster speed
-    update_interval: int = 30
-    check_upgrade: bool = True
-    plugin_folder: str = 'plugins'
+```json5
+{
+    "permission": 3,
+    // Permission required to use commands.
 
+    "source": "https://github.com/",
+    // Catalogue source. You may use ghproxy/fastgit to get faster speed:
+    // "source": "https://ghproxy.com/https://github.com/"
+    // "source": "https://hub.fgit.ml/"
 
-class Configuration(Serializable):
-    permission: int = 3
-    catalogue: CatalogueConfig = CatalogueConfig()
-    page_size: int = 6
-    use_release_cdn: bool = True
+    "update_interval": 1000,
+    // Catalogue update interval in seconds.
+
+    "check_upgrade": true,
+    // Whether to check plugin upgrades on catalogue update.
+
+    "plugin_folder": "plugins",
+    // Plugin folder for installation. Should be a MCDR plugin folder.
+
+    "page_size": 6,
+    // Page size when browsing and searching catalogue.
+}
 ```
 
 ## TODO
 ### March ~ April, 2023
 - [ ] Take class `Session` out
 - [ ] Implement `!!al upgrade`
-- [ ] Better README
+- [x] Better README
 
 ### May, 2023
 - [ ] Handle all exceptions
