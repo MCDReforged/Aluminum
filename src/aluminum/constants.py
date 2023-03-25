@@ -28,24 +28,19 @@ class NegativeInfinity:
 
 N_INF = NegativeInfinity()
 
-global_server = ServerInterface.get_instance().as_plugin_server_interface()
+psi = ServerInterface.get_instance().as_plugin_server_interface()
 
 PYTHON = sys.executable
 
-PLUGIN_ID = 'aluminum'
-PLUGIN_VERSION = '0.1.3'
-PLUGIN_DESCRIPTION = 'Anothoer Plugin Manager'
-PLUGIN_FOLDER = global_server.get_mcdr_config()['plugin_directories'][0]
-PLUGIN_CATALOGUE = 'MCDReforged/PluginCatalogue/archive/refs/heads/meta.zip'
+META = psi.get_self_metadata()
 PREFIX = ['!!al', '!!aluminum']
 
 INDEXES = ['api', 'information', 'tool', 'management', 'outdated', 'installed', 'all']
 SORTS = ['labels', 'authors', 'name']
-PAGE_SIZE = 6
 
 DEPENDENCY_BLACKLIST = ['python', 'mcdreforged']
 
-RELOADED_BANNER = f'§3Aluminum {PLUGIN_VERSION} initialized!'
+RELOADED_BANNER = f'§3Aluminum {META.version} initialized!'
 LOADED_BANNER = f'''                            
 §3 _____ _           _               
 §3|  _  | |_ _ _____|_|___ _ _ _____ 
@@ -54,7 +49,4 @@ LOADED_BANNER = f'''
 
 {RELOADED_BANNER}
 '''
-
-with global_server.open_bundled_file('trans\zh_cn.yml') as f:
-    TRANSLATION = yaml.safe_load(f)
 

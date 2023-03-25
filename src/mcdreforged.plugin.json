@@ -11,7 +11,8 @@
     },
     "resources": [
         "trans"
-    ], 
+    ],
+    "entrypoint": "aluminum.entry",
     "author": "Alex3236",
     "link": "https://github.com/alex3236/joinMOTD_Plus"
 }

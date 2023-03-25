@@ -1,13 +1,19 @@
+# Python
 __pycache__
 .venv
+
+# IDE
 .vscode
-config
-dist
-build*
-*.zip
+
+# MCDR
+/config
+/dist
 /logs
 /config
 /plugins
 /config.yml
 /server
 /permission.yml
+
+# Others
+/test
